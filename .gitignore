@@ -5,6 +5,7 @@ terraform/terraform.tfstate.backup
 
 # Packer output
 packer/output-*/
+packer/seed.iso
 
 # VM artifacts (runtime, not source)
 tmp/
