@@ -1,0 +1,14 @@
+---
+- name: Common baseline
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure basic packages are present
+      ansible.builtin.apt:
+        name:
+          - qemu-guest-agent
+          - curl
+          - vim
+          - git
+        state: present
+        update_cache: true

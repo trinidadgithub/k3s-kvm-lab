@@ -1,0 +1,5 @@
+---
+- name: Configure jumpbox
+  hosts: jumpbox
+  become: true
+  tasks: []

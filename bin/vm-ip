@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+virsh domifaddr "${1:?usage: vm-ip <vm-name>}"

@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <name> [ram_mb] [vcpus] [disk_gb]"
+  exit 1
+fi
+
+NAME="$1"
+RAM="${2:-2048}"
+VCPU="${3:-2}"
+DISK="${4:-20}"
+
+BASE="/var/lib/libvirt/images/lab/base/ubuntu-24.04-server-cloudimg-amd64.img"
+POOL="/var/lib/libvirt/images/lab"
+LAB_ROOT="$HOME/workspace/lab"
+TMP_DIR="$LAB_ROOT/tmp/$NAME"
+
+PUBKEY=""
+if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
+  PUBKEY="$(cat "$HOME/.ssh/id_ed25519.pub")"
+elif [[ -f "$HOME/.ssh/id_rsa.pub" ]]; then
+  PUBKEY="$(cat "$HOME/.ssh/id_rsa.pub")"
+else
+  echo "No SSH public key found in ~/.ssh/"
+  echo "Create one first with: ssh-keygen -t ed25519"
+  exit 1
+fi
+
+if [[ ! -f "$BASE" ]]; then
+  echo "Base image not found: $BASE"
+  exit 1
+fi
+
+mkdir -p "$TMP_DIR"
+sudo mkdir -p "$POOL/$NAME"
+
+cat > "$TMP_DIR/user-data.yaml" <<EOF
+#cloud-config
+hostname: ${NAME}
+manage_etc_hosts: true
+
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${PUBKEY}
+
+ssh_pwauth: false
+disable_root: true
+package_update: true
+packages:
+  - qemu-guest-agent
+  - curl
+  - vim
+  - git
+
+runcmd:
+  - systemctl enable --now qemu-guest-agent
+EOF
+
+cat > "$TMP_DIR/meta-data.yaml" <<EOF
+instance-id: iid-${NAME}
+local-hostname: ${NAME}
+EOF
+
+sudo qemu-img create -f qcow2 -F qcow2 -b "$BASE" \
+  "$POOL/$NAME/$NAME.qcow2" "${DISK}G"
+
+sudo cloud-localds \
+  "$POOL/$NAME/seed.iso" \
+  "$TMP_DIR/user-data.yaml" \
+  "$TMP_DIR/meta-data.yaml"
+
+sudo virt-install \
+  --name "$NAME" \
+  --memory "$RAM" \
+  --vcpus "$VCPU" \
+  --disk path="$POOL/$NAME/$NAME.qcow2",format=qcow2 \
+  --disk path="$POOL/$NAME/seed.iso",device=cdrom \
+  --os-variant ubuntu24.04 \
+  --virt-type kvm \
+  --graphics none \
+  --console pty,target_type=serial \
+  --network network=default \
+  --import \
+  --noautoconsole

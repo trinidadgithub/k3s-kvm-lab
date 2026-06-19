@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+VM="${1:?usage: vm-ssh <vm-name>}"
+IP=$(virsh domifaddr "$VM" | awk '/ipv4/ {print $4}' | cut -d/ -f1 | head -n1)
+
+if [[ -z "${IP:-}" ]]; then
+  echo "No IP found for $VM"
+  exit 1
+fi
+
+ssh ubuntu@"$IP"

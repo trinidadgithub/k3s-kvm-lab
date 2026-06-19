@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+virsh destroy $1 || true
+virsh undefine $1 --remove-all-storage

@@ -1,0 +1,20 @@
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+
+# Packer output
+packer/output-*/
+
+# VM artifacts (runtime, not source)
+tmp/
+vm-pool/
+iso/
+images/ubuntu-24.04-server-cloudimg-amd64.img
+snapshots/
+
+# OS artifacts
+.DS_Store
+*.swp
+*.swo
+*~
