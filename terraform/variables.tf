@@ -1,21 +1,6 @@
-variable "vm_memory_mb" {
-  type    = number
-  default = 2048
-}
-
-variable "vm_vcpu" {
-  type    = number
-  default = 2
-}
-
 variable "network_name" {
   type    = string
   default = "default"
-}
-
-variable "pool_path" {
-  type    = string
-  default = "/var/lib/libvirt/images/lab"
 }
 
 variable "base_image" {
