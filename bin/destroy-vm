@@ -1,3 +1,12 @@
 #!/usr/bin/env bash
-virsh destroy $1 || true
-virsh undefine $1 --remove-all-storage
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <vm-name>"
+  exit 1
+fi
+
+VM="$1"
+
+virsh destroy "$VM" 2>/dev/null || true
+virsh undefine "$VM" --remove-all-storage
