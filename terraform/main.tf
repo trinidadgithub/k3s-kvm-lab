@@ -21,7 +21,11 @@ locals {
     }
   }
 
-  ssh_public_key = trimspace(file(pathexpand("~/.ssh/id_rsa.pub")))
+  ssh_public_key = trimspace(file(
+    fileexists(pathexpand("~/.ssh/id_ed25519.pub")) ?
+    pathexpand("~/.ssh/id_ed25519.pub") :
+    pathexpand("~/.ssh/id_rsa.pub")
+  ))
 }
 
 resource "libvirt_volume" "vm_disk" {
