@@ -2,4 +2,25 @@
 - name: Configure k3s agents
   hosts: k3s_agents
   become: true
-  tasks: []
+  vars:
+    k3s_server_host: "{{ groups['k3s_server'][0] }}"
+    k3s_server_url: "https://{{ hostvars[k3s_server_host].ansible_host }}:6443"
+  tasks:
+    - name: Check whether k3s is installed
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Install k3s agent
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -sfL https://get.k3s.io | K3S_URL="{{ k3s_server_url }}" K3S_TOKEN="{{ hostvars[k3s_server_host].k3s_node_token }}" INSTALL_K3S_EXEC="agent --node-ip {{ ansible_host }}" sh -
+      args:
+        executable: /bin/bash
+      when: not k3s_binary.stat.exists
+
+    - name: Ensure k3s agent service is running
+      ansible.builtin.service:
+        name: k3s-agent
+        state: started
+        enabled: true

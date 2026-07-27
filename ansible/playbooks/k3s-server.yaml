@@ -2,4 +2,38 @@
 - name: Configure k3s server
   hosts: k3s_server
   become: true
-  tasks: []
+  tasks:
+    - name: Check whether k3s is installed
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Install k3s server
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --write-kubeconfig-mode 0644 --node-ip {{ ansible_host }} --advertise-address {{ ansible_host }} --tls-san {{ ansible_host }}" sh -
+      args:
+        executable: /bin/bash
+      when: not k3s_binary.stat.exists
+
+    - name: Wait for k3s node token
+      ansible.builtin.wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+        timeout: 120
+
+    - name: Read k3s node token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token_raw
+
+    - name: Store k3s node token for agent play
+      ansible.builtin.set_fact:
+        k3s_node_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+
+    - name: Wait for Kubernetes API
+      ansible.builtin.command: /usr/local/bin/k3s kubectl get nodes
+      register: k3s_nodes
+      changed_when: false
+      retries: 12
+      delay: 5
+      until: k3s_nodes.rc == 0

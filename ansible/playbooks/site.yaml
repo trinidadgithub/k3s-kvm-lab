@@ -12,3 +12,9 @@
           - git
         state: present
         update_cache: true
+
+- name: Configure k3s server
+  ansible.builtin.import_playbook: k3s-server.yaml
+
+- name: Configure k3s agents
+  ansible.builtin.import_playbook: k3s-agent.yaml
