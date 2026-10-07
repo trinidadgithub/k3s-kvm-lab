@@ -7,7 +7,7 @@ locals {
       mac    = "52:54:00:aa:aa:01"
     }
     k3s-master = {
-      memory = 3072
+      memory = 2048
       vcpu   = 2
       disk   = 25 * 1024 * 1024 * 1024
       mac    = "52:54:00:aa:aa:02"
@@ -17,6 +17,12 @@ locals {
       vcpu   = 2
       disk   = 20 * 1024 * 1024 * 1024
       mac    = "52:54:00:aa:aa:03"
+    }
+    k3s-worker2 = {
+      memory = 2048
+      vcpu   = 2
+      disk   = 20 * 1024 * 1024 * 1024
+      mac    = "52:54:00:aa:aa:04"
     }
   }
 

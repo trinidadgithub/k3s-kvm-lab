@@ -14,7 +14,14 @@ users:
 ssh_pwauth: false
 disable_root: true
 
-package_update: true
+write_files:
+  - path: /etc/sysctl.d/90-lab.conf
+    content: |
+      net.ipv4.ip_forward = 1
+      net.core.rmem_default = 262144
+      net.core.wmem_default = 262144
+    permissions: "0644"
+
 packages:
   - qemu-guest-agent
   - curl

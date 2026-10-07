@@ -2,4 +2,40 @@
 - name: Configure jumpbox
   hosts: jumpbox
   become: true
-  tasks: []
+  tasks:
+    - name: Install CLI tools
+      ansible.builtin.apt:
+        name:
+          - helm
+          - jq
+          - htop
+          - tree
+          - net-tools
+          - dnsutils
+          - bash-completion
+        state: present
+        update_cache: true
+
+    - name: Download kubectl binary
+      ansible.builtin.get_url:
+        url: https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: "0755"
+
+    - name: Install k9s via krew
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if ! command -v k9s &>/dev/null; then
+          curl -sfL https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_amd64.tar.gz \
+            | tar xzf - -C /usr/local/bin k9s
+        fi
+      args:
+        executable: /bin/bash
+        creates: /usr/local/bin/k9s
+
+    - name: Enable bash completion for kubectl
+      ansible.builtin.shell: |
+        kubectl completion bash > /etc/bash_completion.d/kubectl
+      args:
+        executable: /bin/bash
+        creates: /etc/bash_completion.d/kubectl

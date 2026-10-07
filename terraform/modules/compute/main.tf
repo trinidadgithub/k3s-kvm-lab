@@ -45,9 +45,8 @@ resource "libvirt_domain" "vm" {
     disks = [
       {
         source = {
-          volume = {
-            pool   = var.pool_name
-            volume = libvirt_volume.vm_disk[each.key].name
+          file = {
+            file = libvirt_volume.vm_disk[each.key].path
           }
         }
         target = { dev = "vda", bus = "virtio" }

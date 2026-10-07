@@ -1,0 +1,3 @@
+# Local libvirt lab storage pool — VM disks (rw) and base images (r)
+/var/lib/libvirt/images/lab/**/*.qcow2 rwk,
+/var/lib/libvirt/images/lab/**/*.img rk,

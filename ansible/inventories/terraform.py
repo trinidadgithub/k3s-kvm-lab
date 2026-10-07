@@ -22,13 +22,14 @@ inventory = {
         "hosts": ["k3s-master"],
     },
     "k3s_agents": {
-        "hosts": ["k3s-worker1"],
+        "hosts": ["k3s-worker1", "k3s-worker2"],
     },
     "_meta": {
         "hostvars": {
             "jumpbox": {"ansible_host": "192.168.123.10"},
             "k3s-master": {"ansible_host": "192.168.123.11"},
             "k3s-worker1": {"ansible_host": "192.168.123.12"},
+            "k3s-worker2": {"ansible_host": "192.168.123.13"},
         }
     },
 }

@@ -8,5 +8,16 @@ fi
 
 VM="$1"
 
+if ! virsh dominfo "$VM" >/dev/null 2>&1; then
+  echo "Error: domain '$VM' not found"
+  exit 1
+fi
+
+read -r -p "Destroy and undefine '$VM' including all storage? [y/N] " confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+  echo "Aborted."
+  exit 0
+fi
+
 virsh destroy "$VM" 2>/dev/null || true
 virsh undefine "$VM" --remove-all-storage

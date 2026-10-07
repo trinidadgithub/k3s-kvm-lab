@@ -2,6 +2,7 @@
 terraform/.terraform/
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+terraform/terraform.tfstate.*.backup
 
 # Packer output
 packer/output-*/
@@ -19,3 +20,13 @@ snapshots/
 *.swp
 *.swo
 *~
+
+# Machine-local tool shims (symlinks into nvm; not portable)
+bin/node
+bin/npm
+bin/npx
+
+# Tool session artifacts
+opencode-session.txt
+*.opencode-session.txt
+terraform/terraform.tfstate

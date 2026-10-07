@@ -19,6 +19,7 @@ resource "libvirt_network" "lab" {
         { mac = "52:54:00:aa:aa:01", name = "jumpbox", ip = "192.168.123.10" },
         { mac = "52:54:00:aa:aa:02", name = "k3s-master", ip = "192.168.123.11" },
         { mac = "52:54:00:aa:aa:03", name = "k3s-worker1", ip = "192.168.123.12" },
+        { mac = "52:54:00:aa:aa:04", name = "k3s-worker2", ip = "192.168.123.13" },
       ]
       ranges = [{ start = "192.168.123.100", end = "192.168.123.200" }]
     }

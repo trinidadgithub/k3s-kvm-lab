@@ -2,20 +2,11 @@
 - name: Configure k3s server
   hosts: k3s_server
   become: true
+  vars:
+    k3s_install_args: "server --write-kubeconfig-mode 0644 --node-ip {{ ansible_host }} --advertise-address {{ ansible_host }} --tls-san {{ ansible_host }}"
+  roles:
+    - k3s
   tasks:
-    - name: Check whether k3s is installed
-      ansible.builtin.stat:
-        path: /usr/local/bin/k3s
-      register: k3s_binary
-
-    - name: Install k3s server
-      ansible.builtin.shell: |
-        set -euo pipefail
-        curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --write-kubeconfig-mode 0644 --node-ip {{ ansible_host }} --advertise-address {{ ansible_host }} --tls-san {{ ansible_host }}" sh -
-      args:
-        executable: /bin/bash
-      when: not k3s_binary.stat.exists
-
     - name: Wait for k3s node token
       ansible.builtin.wait_for:
         path: /var/lib/rancher/k3s/server/node-token
